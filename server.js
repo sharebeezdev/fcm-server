@@ -31,6 +31,18 @@ app.use(bodyParser.json());
 app.post('/send', async (req, res) => {
   const { token, title, body, params, largeIcon } = req.body;
 
+  let data = {};
+  try {
+    data = params ? JSON.parse(params) : {};
+  } catch (error) {
+    console.error('Failed to parse params:', error);
+  }
+
+  // Convert all values in the data object to strings
+  const stringifiedData = Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [key, String(value)])
+  );
+
   const message = {
     token: token,
     notification: {
@@ -50,7 +62,7 @@ app.post('/send', async (req, res) => {
         'media-url': largeIcon // URL for large image
       }
     },
-    data: params ? JSON.parse(params) : {} // Parse params if provided
+    data: stringifiedData
   };
 
   try {
