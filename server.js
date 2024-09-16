@@ -29,14 +29,28 @@ const app = express();
 app.use(bodyParser.json());
 
 app.post('/send', async (req, res) => {
-  const { token, title, body } = req.body;
+  const { token, title, body, params, largeIcon } = req.body;
 
   const message = {
+    token: token,
     notification: {
       title: title,
       body: body,
+      image: largeIcon // URL for large image
     },
-    token: token,
+    apns: {
+      payload: {
+        aps: {
+          alert: {
+            title: title,
+            body: body
+          },
+          'mutable-content': 1 // Allows media attachments
+        },
+        'media-url': largeIcon // URL for large image
+      }
+    },
+    data: params ? JSON.parse(params) : {} // Parse params if provided
   };
 
   try {
